@@ -1008,30 +1008,54 @@ defmodule Day02 do
     end)
   end
 
+  def handle_direction_part_01([direction, num], acc) do
+    case direction do
+      "forward" ->
+        {new_num, new_acc} = get_and_update_in(acc.horizontal, &{&1, &1 + String.to_integer(num)})
+
+        new_acc
+
+      "up" ->
+        {new_num, new_acc} = get_and_update_in(acc.depth, &{&1, &1 - String.to_integer(num)})
+
+        new_acc
+
+      "down" ->
+        {new_num, new_acc} = get_and_update_in(acc.depth, &{&1, &1 + String.to_integer(num)})
+
+        new_acc
+    end
+  end
+
+  def handle_direction_part_02([direction, num], acc) do
+    case direction do
+      "forward" ->
+        {new_num, new_acc1} =
+          get_and_update_in(acc.horizontal, &{&1, &1 + String.to_integer(num)})
+
+        {new_num, new_acc2} =
+          get_and_update_in(new_acc1.depth, &{&1, &1 + String.to_integer(num) * new_acc1.aim})
+
+        new_acc2
+
+      "up" ->
+        {new_num, new_acc} = get_and_update_in(acc.aim, &{&1, &1 - String.to_integer(num)})
+
+        new_acc
+
+      "down" ->
+        {new_num, new_acc} = get_and_update_in(acc.aim, &{&1, &1 + String.to_integer(num)})
+
+        new_acc
+    end
+  end
+
   @doc """
     part 1
   """
   def part01() do
     format_input()
-    |> Enum.reduce(%{depth: 0, horizontal: 0}, fn [direction, num], acc ->
-      case direction do
-        "forward" ->
-          {new_num, new_acc} =
-            get_and_update_in(acc.horizontal, &{&1, &1 + String.to_integer(num)})
-
-          new_acc
-
-        "up" ->
-          {new_num, new_acc} = get_and_update_in(acc.depth, &{&1, &1 - String.to_integer(num)})
-
-          new_acc
-
-        "down" ->
-          {new_num, new_acc} = get_and_update_in(acc.depth, &{&1, &1 + String.to_integer(num)})
-
-          new_acc
-      end
-    end)
+    |> Enum.reduce(%{depth: 0, horizontal: 0}, &handle_direction_part_01/2)
     |> then(fn res -> res.depth * res.horizontal end)
   end
 
@@ -1041,28 +1065,7 @@ defmodule Day02 do
 
   def part02() do
     format_input()
-    |> Enum.reduce(%{depth: 0, horizontal: 0, aim: 0}, fn [direction, num], acc ->
-      case direction do
-        "forward" ->
-          {new_num, new_acc1} =
-            get_and_update_in(acc.horizontal, &{&1, &1 + String.to_integer(num)})
-
-          {new_num, new_acc2} =
-            get_and_update_in(new_acc1.depth, &{&1, &1 + String.to_integer(num) * new_acc1.aim})
-
-          new_acc2
-
-        "up" ->
-          {new_num, new_acc} = get_and_update_in(acc.aim, &{&1, &1 - String.to_integer(num)})
-
-          new_acc
-
-        "down" ->
-          {new_num, new_acc} = get_and_update_in(acc.aim, &{&1, &1 + String.to_integer(num)})
-
-          new_acc
-      end
-    end)
+    |> Enum.reduce(%{depth: 0, horizontal: 0, aim: 0}, &handle_direction_part_02/2)
     |> then(fn res -> res.depth * res.horizontal end)
   end
 end
